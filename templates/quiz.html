@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>測驗進行中</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #d0d0d0;
+            --hover-bg: #f5f5f5;
+            --input-bg: #ffffff;
+            --header-bg: #fafafa;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --border-color: #404040;
+            --hover-bg: #2a2a2a;
+            --input-bg: #2a2a2a;
+            --header-bg: #222222;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: normal;
+        }
+        
+        .progress-info {
+            font-size: 0.95rem;
+            opacity: 0.7;
+        }
+        
+        .theme-toggle {
+            padding: 8px 16px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .question-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            padding: 25px;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .question-number {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .question-type {
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+        
+        .question-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr;
+            gap: 20px;
+            align-items: start;
+        }
+        
+        @media (max-width: 900px) {
+            .question-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .field-label {
+            font-weight: bold;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+        
+        .field-content {
+            font-size: 1rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--text-color);
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .input-small {
+            flex: 0 0 120px;
+        }
+        
+        .separator {
+            font-weight: bold;
+            opacity: 0.6;
+        }
+        
+        .word-display {
+            font-family: "Merriweather", Georgia, serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .button-container {
+            position: sticky;
+            bottom: 0;
+            background: var(--header-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 35px;
+            font-size: 1.05rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background: var(--hover-bg);
+        }
+        
+        .btn-primary {
+            background: var(--text-color);
+            color: var(--bg-color);
+            border-color: var(--text-color);
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <h1>{{ mode_name }}</h1>
+            <span class="progress-info">共 {{ questions|length }} 題</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">切換主題</button>
+    </div>
+    
+    <div class="container">
+        <form id="quizForm">
+            {% for i in range(questions|length) %}
+            {% set question = questions[i] %}
+            {% set mode = question_modes[i] %}
+            
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="question-number">第 {{ i + 1 }} 題</span>
+                    <span class="question-type">
+                        {% if mode == 'A' %}中文解釋及詞性測驗{% else %}拼字測驗{% endif %}
+                    </span>
+                </div>
+                
+                <div class="question-content">
+                    <!-- 單字欄位 -->
+                    <div class="field-group">
+                        <div class="field-label">單字</div>
+                        <div class="field-content">
+                            {% if mode == 'A' %}
+                                <span class="word-display">{{ question.word }}</span>
+                            {% else %}
+                                <input type="text" 
+                                       class="input-field" 
+                                       data-question="{{ i }}" 
+                                       data-field="word" 
+                                       placeholder="輸入單字拼寫"
+                                       autocomplete="off">
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 詞性欄位 -->
+                    <div class="field-group">
+                        <div class="field-label">詞性</div>
+                        <div class="field-content">
+                            {% if mode == 'A' %}
+                                <div class="input-group">
+                                    {% set pos_list = question.pos.split('&') %}
+                                    <div class="input-row">
+                                        {% for j in range(pos_list|length) %}
+                                            {% if j > 0 %}<span class="separator">&</span>{% endif %}
+                                            <input type="text" 
+                                                   class="input-field input-small" 
+                                                   data-question="{{ i }}" 
+                                                   data-field="pos" 
+                                                   data-index="{{ j }}"
+                                                   placeholder="詞性 {{ j + 1 }}"
+                                                   autocomplete="off">
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="input-row">
+                                    {% set pos_list = question.pos.split('&') %}
+                                    {% for j in range(pos_list|length) %}
+                                        {% if j > 0 %}<span class="separator">&</span>{% endif %}
+                                        <span>{{ pos_list[j].strip() }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 中文解釋欄位 -->
+                    <div class="field-group">
+                        <div class="field-label">中文解釋</div>
+                        <div class="field-content">
+                            {% if mode == 'A' %}
+                                <div class="input-group">
+                                    {% set parts = question.meaning.split('&') %}
+                                    {% set meaning_index = 0 %}
+                                    {% for part_idx in range(parts|length) %}
+                                        <div class="input-row">
+                                            {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
+                                            {% set sub_meanings = parts[part_idx].split('、') %}
+                                            {% for sub_idx in range(sub_meanings|length) %}
+                                                {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
+                                                <input type="text" 
+                                                       class="input-field input-small" 
+                                                       data-question="{{ i }}" 
+                                                       data-field="meaning" 
+                                                       data-index="{{ meaning_index }}"
+                                                       placeholder="解釋 {{ meaning_index + 1 }}"
+                                                       autocomplete="off">
+                                                {% set meaning_index = meaning_index + 1 %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="input-group">
+                                    {% set parts = question.meaning.split('&') %}
+                                    {% for part_idx in range(parts|length) %}
+                                        <div class="input-row">
+                                            {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
+                                            {% set sub_meanings = parts[part_idx].split('、') %}
+                                            {% for sub_idx in range(sub_meanings|length) %}
+                                                {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
+                                                <span>{{ sub_meanings[sub_idx].strip() }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </form>
+    </div>
+    
+    <div class="button-container">
+        <button type="button" class="btn" onclick="window.location.href='/'">返回主頁</button>
+        <button type="submit" class="btn btn-primary" onclick="submitQuiz(event)">提交答案</button>
+    </div>
+    
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+        
+        async function submitQuiz(event) {
+            event.preventDefault();
+            
+            const answers = [];
+            const questionCount = {{ questions|length }};
+            
+            for (let i = 0; i < questionCount; i++) {
+                const mode = '{{ question_modes[i] }}';
+                
+                if (mode === 'A') {
+                    const posInputs = document.querySelectorAll(`input[data-question="${i}"][data-field="pos"]`);
+                    const pos = Array.from(posInputs).map(input => input.value.trim());
+                    
+                    const meaningInputs = document.querySelectorAll(`input[data-question="${i}"][data-field="meaning"]`);
+                    const meaning = Array.from(meaningInputs).map(input => input.value.trim());
+                    
+                    answers.push({ pos, meaning });
+                } else {
+                    const wordInput = document.querySelector(`input[data-question="${i}"][data-field="word"]`);
+                    const word = wordInput ? wordInput.value.trim() : '';
+                    
+                    answers.push({ word });
+                }
+            }
+            
+            try {
+                const response = await fetch('/submit_answers', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ answers })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.message || '提交失敗，請稍後再試');
+                }
+            } catch (error) {
+                alert('提交失敗，請稍後再試');
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

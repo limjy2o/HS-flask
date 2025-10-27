@@ -1,0 +1,924 @@
+{
+  "3-2": [
+    {
+      "word": "privilege",
+      "pos": "n&v",
+      "meaning": "特權、榮幸&給予…特權"
+    },
+    {
+      "word": "privileged",
+      "pos": "a",
+      "meaning": "有特權的"
+    },
+    {
+      "word": "legend",
+      "pos": "n",
+      "meaning": "傳說"
+    },
+    {
+      "word": "sketch",
+      "pos": "n&v",
+      "meaning": "素描、草圖&素描、概略"
+    },
+    {
+      "word": "draft",
+      "pos": "v&n",
+      "meaning": "草擬&草稿"
+    },
+    {
+      "word": "namely",
+      "pos": "adv",
+      "meaning": "換言之"
+    },
+    {
+      "word": "humanity",
+      "pos": "n",
+      "meaning": "人類、仁愛"
+    },
+    {
+      "word": "sacrifice",
+      "pos": "v&n",
+      "meaning": "犧牲&犧牲"
+    },
+    {
+      "word": "depression",
+      "pos": "n",
+      "meaning": "沮喪、憂鬱症、經濟蕭條"
+    },
+    {
+      "word": "loyal",
+      "pos": "a",
+      "meaning": "忠誠的"
+    },
+    {
+      "word": "loyalty",
+      "pos": "n",
+      "meaning": "忠誠"
+    },
+    {
+      "word": "faithful",
+      "pos": "a",
+      "meaning": "忠實的、守信的"
+    },
+    {
+      "word": "interfere",
+      "pos": "v",
+      "meaning": "干預、妨礙"
+    },
+    {
+      "word": "submarine",
+      "pos": "n",
+      "meaning": "潛水艇"
+    },
+    {
+      "word": "abstract",
+      "pos": "a",
+      "meaning": "抽象的"
+    },
+    {
+      "word": "concrete",
+      "pos": "a&n&v",
+      "meaning": "具體的&混凝土&用混凝土覆蓋"
+    },
+    {
+      "word": "landscape",
+      "pos": "n",
+      "meaning": "景色&美化景觀"
+    },
+    {
+      "word": "scenery",
+      "pos": "n",
+      "meaning": "風景"
+    },
+    {
+      "word": "context",
+      "pos": "n",
+      "meaning": "上下文、背景的"
+    },
+    {
+      "word": "pioneer",
+      "pos": "n&v",
+      "meaning": "先驅&率先發明、使用、倡導"
+    },
+    {
+      "word": "access",
+      "pos": "n&v",
+      "meaning": "接近或使用的權利或門徑&使用、電腦存取資料"
+    },
+    {
+      "word": "evaluate",
+      "pos": "v",
+      "meaning": "評估"
+    },
+    {
+      "word": "evaluation",
+      "pos": "n",
+      "meaning": "評估"
+    },
+    {
+      "word": "fulfill",
+      "pos": "v",
+      "meaning": "實現"
+    },
+    {
+      "word": "fulfillment",
+      "pos": "n",
+      "meaning": "實現、成就感"
+    },
+    {
+      "word": "exhaust",
+      "pos": "v",
+      "meaning": "使筋疲力盡、耗盡&排出的氣體"
+    },
+    {
+      "word": "exhausted",
+      "pos": "a",
+      "meaning": "疲憊的"
+    },
+    {
+      "word": "exhausting",
+      "pos": "a",
+      "meaning": "使人耗費精力的"
+    },
+    {
+      "word": "exhaustion",
+      "pos": "n",
+      "meaning": "筋疲力竭、耗盡"
+    },
+    {
+      "word": "rebel",
+      "pos": "n&v",
+      "meaning": "叛徒&反抗"
+    },
+    {
+      "word": "discourage",
+      "pos": "v",
+      "meaning": "使打消念頭"
+    },
+    {
+      "word": "discouragement",
+      "pos": "n",
+      "meaning": "沮喪、勸阻"
+    },
+    {
+      "word": "vessel",
+      "pos": "n",
+      "meaning": "船艦、容器、血管"
+    },
+    {
+      "word": "mysterious",
+      "pos": "a",
+      "meaning": "神秘的"
+    },
+    {
+      "word": "divine",
+      "pos": "a",
+      "meaning": "神聖的"
+    },
+    {
+      "word": "luxury",
+      "pos": "n",
+      "meaning": "奢侈、奢侈品"
+    },
+    {
+      "word": "luxurious",
+      "pos": "a",
+      "meaning": "豪華的"
+    },
+    {
+      "word": "stem",
+      "pos": "v&n",
+      "meaning": "阻止、起因於&莖"
+    },
+    {
+      "word": "earphone",
+      "pos": "n",
+      "meaning": "耳機之一"
+    },
+    {
+      "word": "choke",
+      "pos": "v",
+      "meaning": "使窒息、噎住"
+    },
+    {
+      "word": "chew",
+      "pos": "v",
+      "meaning": "咀嚼"
+    },
+    {
+      "word": "hesitation",
+      "pos": "n",
+      "meaning": "猶豫"
+    },
+    {
+      "word": "lifeguard",
+      "pos": "n",
+      "meaning": "救生員"
+    },
+    {
+      "word": "timetable",
+      "pos": "n",
+      "meaning": "時間表"
+    },
+    {
+      "word": "summarize",
+      "pos": "v",
+      "meaning": "概述"
+    },
+    {
+      "word": "robber",
+      "pos": "n",
+      "meaning": "強盜"
+    },
+    {
+      "word": "partial",
+      "pos": "a",
+      "meaning": "偏心的、部分的"
+    },
+    {
+      "word": "partially",
+      "pos": "adv",
+      "meaning": "部分地"
+    },
+    {
+      "word": "impartial",
+      "pos": "a",
+      "meaning": "公平的"
+    },
+    {
+      "word": "disaster",
+      "pos": "n",
+      "meaning": "災害、大失敗"
+    },
+    {
+      "word": "defeat",
+      "pos": "n&v",
+      "meaning": "失敗&擊敗"
+    },
+    {
+      "word": "stroke",
+      "pos": "n&v",
+      "meaning": "中風、繪畫或寫字一筆、游泳方式、一擊&用手撫摸"
+    },
+    {
+      "word": "exaggerate",
+      "pos": "v",
+      "meaning": "誇張"
+    },
+    {
+      "word": "clarify",
+      "pos": "v",
+      "meaning": "澄清"
+    },
+    {
+      "word": "diplomat",
+      "pos": "n",
+      "meaning": "外交官"
+    },
+    {
+      "word": "embassy",
+      "pos": "n",
+      "meaning": "大使館"
+    },
+    {
+      "word": "greeting",
+      "pos": "n",
+      "meaning": "招呼、祝賀詞"
+    },
+    {
+      "word": "desperate",
+      "pos": "a",
+      "meaning": "奮不顧身的、極度渴望的、絕望的"
+    },
+    {
+      "word": "conservative",
+      "pos": "a&n",
+      "meaning": "保守的&保守派人士"
+    },
+    {
+      "word": "mercy",
+      "pos": "n",
+      "meaning": "仁慈"
+    },
+    {
+      "word": "mineral",
+      "pos": "n&v",
+      "meaning": "礦物、礦物質&礦物的"
+    },
+    {
+      "word": "respectable",
+      "pos": "a",
+      "meaning": "值得尊敬的、體面的"
+    },
+    {
+      "word": "respectful",
+      "pos": "a",
+      "meaning": "尊重的"
+    },
+    {
+      "word": "cherish",
+      "pos": "v",
+      "meaning": "珍惜"
+    },
+    {
+      "word": "full-time",
+      "pos": "a&adv",
+      "meaning": "全職的&全職地"
+    },
+    {
+      "word": "part-time",
+      "pos": "a&adv",
+      "meaning": "兼職的&兼職地"
+    },
+    {
+      "word": "recreation",
+      "pos": "n",
+      "meaning": "消遣、休閒娛樂"
+    },
+    {
+      "word": "blade",
+      "pos": "n",
+      "meaning": "刀鋒"
+    },
+    {
+      "word": "moderate",
+      "pos": "a",
+      "meaning": "適度的"
+    },
+    {
+      "word": "delight",
+      "pos": "v&n",
+      "meaning": "使喜悅&欣喜"
+    },
+    {
+      "word": "delighted",
+      "pos": "a",
+      "meaning": "感的高興的"
+    },
+    {
+      "word": "delightful",
+      "pos": "a",
+      "meaning": "愉快的、漂亮迷人的"
+    },
+    {
+      "word": "contest",
+      "pos": "n&v",
+      "meaning": "比賽&爭奪"
+    },
+    {
+      "word": "polish",
+      "pos": "v&n",
+      "meaning": "擦亮、改進&磨光"
+    },
+    {
+      "word": "craft",
+      "pos": "n",
+      "meaning": "手藝、手工藝品"
+    },
+    {
+      "word": "bounce",
+      "pos": "v&n",
+      "meaning": "彈跳、支票跳票&彈、彈性"
+    },
+    {
+      "word": "foam",
+      "pos": "n&v",
+      "meaning": "泡泡&起泡"
+    },
+    {
+      "word": "negotiate",
+      "pos": "v",
+      "meaning": "談判"
+    },
+    {
+      "word": "orbit",
+      "pos": "n&v",
+      "meaning": "軌道&繞軌道運行"
+    },
+    {
+      "word": "spare",
+      "pos": "v&a&n",
+      "meaning": "分出、節省、使避免&備用的&備用品"
+    },
+    {
+      "word": "barrier",
+      "pos": "n",
+      "meaning": "障礙物"
+    },
+    {
+      "word": "obstacle",
+      "pos": "n",
+      "meaning": "障礙"
+    },
+    {
+      "word": "fantastic",
+      "pos": "a",
+      "meaning": "極好的、幻想的"
+    },
+    {
+      "word": "fantasy",
+      "pos": "n",
+      "meaning": "幻想"
+    },
+    {
+      "word": "sue",
+      "pos": "v",
+      "meaning": "控告"
+    },
+    {
+      "word": "stab",
+      "pos": "v",
+      "meaning": "刺"
+    },
+    {
+      "word": "orphan",
+      "pos": "n",
+      "meaning": "孤兒"
+    },
+    {
+      "word": "disadvantage",
+      "pos": "n",
+      "meaning": "缺點"
+    },
+    {
+      "word": "bridegroom",
+      "pos": "n",
+      "meaning": "新郎"
+    },
+    {
+      "word": "apparent",
+      "pos": "a",
+      "meaning": "明顯的、表面上的"
+    },
+    {
+      "word": "confidence",
+      "pos": "n",
+      "meaning": "信心的"
+    },
+    {
+      "word": "courageous",
+      "pos": "a",
+      "meaning": "勇敢的"
+    },
+    {
+      "word": "insert",
+      "pos": "v&n",
+      "meaning": "插入&插入物（尤指廣告頁）"
+    },
+    {
+      "word": "battery",
+      "pos": "n",
+      "meaning": "電池"
+    },
+    {
+      "word": "curiosity",
+      "pos": "n",
+      "meaning": "好奇"
+    },
+    {
+      "word": "protein",
+      "pos": "n",
+      "meaning": "蛋白質"
+    },
+    {
+      "word": "chorus",
+      "pos": "n",
+      "meaning": "合唱團、副歌"
+    },
+    {
+      "word": "endless",
+      "pos": "a",
+      "meaning": "無窮盡的"
+    },
+    {
+      "word": "countless",
+      "pos": "a",
+      "meaning": "數不盡的"
+    },
+    {
+      "word": "restless",
+      "pos": "a",
+      "meaning": "坐不住的、坐立不安的、得不到休息的"
+    },
+    {
+      "word": "hopeless",
+      "pos": "a",
+      "meaning": "不抱希望的"
+    },
+    {
+      "word": "confess",
+      "pos": "v",
+      "meaning": "坦承"
+    },
+    {
+      "word": "innocence",
+      "pos": "n",
+      "meaning": "無罪、純真"
+    },
+    {
+      "word": "paragraph",
+      "pos": "n",
+      "meaning": "文章段落"
+    },
+    {
+      "word": "species",
+      "pos": "n",
+      "meaning": "物種"
+    },
+    {
+      "word": "wit",
+      "pos": "n",
+      "meaning": "聰明機智"
+    },
+    {
+      "word": "crave",
+      "pos": "c",
+      "meaning": "雕刻"
+    },
+    {
+      "word": "costume",
+      "pos": "n",
+      "meaning": "服裝"
+    },
+    {
+      "word": "revise",
+      "pos": "v",
+      "meaning": "修正"
+    },
+    {
+      "word": "revision",
+      "pos": "n",
+      "meaning": "修訂"
+    },
+    {
+      "word": "handwriting",
+      "pos": "n",
+      "meaning": "書寫、字跡"
+    },
+    {
+      "word": "grave",
+      "pos": "n&a",
+      "meaning": "墳墓&嚴肅的、嚴重的"
+    },
+    {
+      "word": "tomb",
+      "pos": "n",
+      "meaning": "墳墓"
+    },
+    {
+      "word": "ruin",
+      "pos": "n&v",
+      "meaning": "廢墟、毀壞&毀掉"
+    },
+    {
+      "word": "countern",
+      "pos": "n&v&a&adv",
+      "meaning": "櫃檯&反對&相反的&相反地"
+    },
+    {
+      "word": "repetition",
+      "pos": "n",
+      "meaning": "重複"
+    },
+    {
+      "word": "repetitive",
+      "pos": "a",
+      "meaning": "重複的（乏味）"
+    },
+    {
+      "word": "repeated",
+      "pos": "a",
+      "meaning": "重複的"
+    },
+    {
+      "word": "triumph",
+      "pos": "n&v",
+      "meaning": "勝利&勝利"
+    },
+    {
+      "word": "mutual",
+      "pos": "a",
+      "meaning": "相互的"
+    },
+    {
+      "word": "invention",
+      "pos": "n",
+      "meaning": "發明、發明物"
+    },
+    {
+      "word": "adapt",
+      "pos": "v",
+      "meaning": "使適應、改編"
+    },
+    {
+      "word": "adopt",
+      "pos": "v",
+      "meaning": "採用、收養"
+    },
+    {
+      "word": "correspond",
+      "pos": "v",
+      "meaning": "符合、通信"
+    },
+    {
+      "word": "scarcely",
+      "pos": "adv",
+      "meaning": "幾乎不"
+    },
+    {
+      "word": "divorce",
+      "pos": "v&n",
+      "meaning": "離婚&離婚"
+    },
+    {
+      "word": "divorced",
+      "pos": "a",
+      "meaning": "離婚的、脫離的"
+    },
+    {
+      "word": "reward",
+      "pos": "n&v",
+      "meaning": "報答&報答、獎賞"
+    },
+    {
+      "word": "empire",
+      "pos": "n",
+      "meaning": "帝國"
+    },
+    {
+      "word": "dynasty",
+      "pos": "n",
+      "meaning": "朝代"
+    },
+    {
+      "word": "gaze",
+      "pos": "v&n",
+      "meaning": "凝視&凝視"
+    },
+    {
+      "word": "aggressive",
+      "pos": "a",
+      "meaning": "有侵略性的、積極進取的"
+    },
+    {
+      "word": "hydrogen",
+      "pos": "n",
+      "meaning": "氫"
+    },
+    {
+      "word": "oxygen",
+      "pos": "n",
+      "meaning": "氧氣"
+    },
+    {
+      "word": "hatred",
+      "pos": "n",
+      "meaning": "厭惡"
+    },
+    {
+      "word": "carrier",
+      "pos": "n",
+      "meaning": "運送者/工具、運輸公司、疾病帶原者"
+    },
+    {
+      "word": "convenience",
+      "pos": "n",
+      "meaning": "方便、便利設施"
+    },
+    {
+      "word": "concerning",
+      "pos": "adv",
+      "meaning": "關於"
+    },
+    {
+      "word": "cabinet",
+      "pos": "n",
+      "meaning": "櫥櫃、內閣"
+    },
+    {
+      "word": "functional",
+      "pos": "a",
+      "meaning": "功用的、實用的"
+    },
+    {
+      "word": "classify",
+      "pos": "v",
+      "meaning": "分類、歸類"
+    },
+    {
+      "word": "classification",
+      "pos": "n",
+      "meaning": "分類、類別"
+    },
+    {
+      "word": "crush",
+      "pos": "n&v",
+      "meaning": "迷戀&擠壓"
+    },
+    {
+      "word": "clash",
+      "pos": "n&v",
+      "meaning": "衝突、碰撞聲&衝突、使碰撞作響"
+    },
+    {
+      "word": "promising",
+      "pos": "a",
+      "meaning": "有為的"
+    },
+    {
+      "word": "collapse",
+      "pos": "v&n",
+      "meaning": "崩塌&崩塌"
+    },
+    {
+      "word": "strive",
+      "pos": "v",
+      "meaning": "力爭"
+    },
+    {
+      "word": "artificial",
+      "pos": "a",
+      "meaning": "人造的、虛偽的"
+    },
+    {
+      "word": "genius",
+      "pos": "n",
+      "meaning": "天賦、天才"
+    },
+    {
+      "word": "violate",
+      "pos": "v",
+      "meaning": "違反、侵犯"
+    },
+    {
+      "word": "violation",
+      "pos": "n",
+      "meaning": "違反"
+    },
+    {
+      "word": "conductor",
+      "pos": "n",
+      "meaning": "樂團指揮、列車長、導遊"
+    },
+    {
+      "word": "guarantee",
+      "pos": "n&v",
+      "meaning": "保證&保證"
+    },
+    {
+      "word": "peer",
+      "pos": "n&v",
+      "meaning": "同輩&凝視"
+    },
+    {
+      "word": "fatal",
+      "pos": "a",
+      "meaning": "致命的、無可挽回的"
+    },
+    {
+      "word": "acquaintance",
+      "pos": "n",
+      "meaning": "相識的人、認識"
+    },
+    {
+      "word": "penalty",
+      "pos": "n",
+      "meaning": "懲罰"
+    },
+    {
+      "word": "invade",
+      "pos": "v",
+      "meaning": "侵入"
+    },
+    {
+      "word": "invasion",
+      "pos": "n",
+      "meaning": "侵入"
+    },
+    {
+      "word": "intimate",
+      "pos": "a&n",
+      "meaning": "親密的、私人的&知己"
+    },
+    {
+      "word": "flexible",
+      "pos": "a",
+      "meaning": "有彈性的"
+    },
+    {
+      "word": "elastic",
+      "pos": "a&n",
+      "meaning": "有彈性的&橡皮筋、鬆緊帶"
+    },
+    {
+      "word": "boast",
+      "pos": "v&n",
+      "meaning": "自誇、以擁有…而自豪&自誇、引以為榮的事物"
+    },
+    {
+      "word": "brag",
+      "pos": "v",
+      "meaning": "自誇、吹噓說"
+    },
+    {
+      "word": "earnest",
+      "pos": "a&n",
+      "meaning": "認真的&認真"
+    },
+    {
+      "word": "magnetic",
+      "pos": "a",
+      "meaning": "磁的、磁性的、有吸引力的"
+    },
+    {
+      "word": "halt",
+      "pos": "n&v",
+      "meaning": "暫停&使停止"
+    },
+    {
+      "word": "chemistry",
+      "pos": "n",
+      "meaning": "化學、感情來電"
+    },
+    {
+      "word": "decoration",
+      "pos": "n",
+      "meaning": "裝飾、裝飾物"
+    },
+    {
+      "word": "refusal",
+      "pos": "n",
+      "meaning": "拒絕"
+    },
+    {
+      "word": "enlarge",
+      "pos": "v",
+      "meaning": "放大照片、擴大"
+    },
+    {
+      "word": "enlargement",
+      "pos": "n",
+      "meaning": "放大、擴大"
+    },
+    {
+      "word": "curse",
+      "pos": "v&n",
+      "meaning": "詛咒&咒罵"
+    },
+    {
+      "word": "blessing",
+      "pos": "n",
+      "meaning": "祝福、福氣"
+    },
+    {
+      "word": "imaginary",
+      "pos": "a",
+      "meaning": "想像的"
+    },
+    {
+      "word": "imaginative",
+      "pos": "a",
+      "meaning": "富有想像力的"
+    },
+    {
+      "word": "imaginable",
+      "pos": "a",
+      "meaning": "可想像的"
+    },
+    {
+      "word": "coward",
+      "pos": "n",
+      "meaning": "膽小鬼"
+    },
+    {
+      "word": "riddle",
+      "pos": "n",
+      "meaning": "謎"
+    },
+    {
+      "word": "suspicious",
+      "pos": "a",
+      "meaning": "可疑的、多疑的"
+    },
+    {
+      "word": "quotation",
+      "pos": "n",
+      "meaning": "引文"
+    },
+    {
+      "word": "feedback",
+      "pos": "n",
+      "meaning": "反饋"
+    },
+    {
+      "word": "disability",
+      "pos": "n",
+      "meaning": "障礙"
+    },
+    {
+      "word": "engineering",
+      "pos": "n",
+      "meaning": "工程學"
+    }
+  ]
+}
