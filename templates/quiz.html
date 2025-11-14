@@ -237,7 +237,7 @@
             {% set question = questions[i] %}
             {% set mode = question_modes[i] %}
             
-            <div class="question-card">
+            <div class="question-card" data-mode="{{ mode }}">
                 <div class="question-header">
                     <span class="question-number">第 {{ i + 1 }} 題</span>
                     <span class="question-type">
@@ -367,26 +367,26 @@
             event.preventDefault();
             
             const answers = [];
-            const questionCount = {{ questions|length }};
+            const questionCards = document.querySelectorAll('.question-card');
             
-            for (let i = 0; i < questionCount; i++) {
-                const mode = '{{ question_modes[i] }}';
+            questionCards.forEach((card, i) => {
+                const mode = card.getAttribute('data-mode');
                 
                 if (mode === 'A') {
-                    const posInputs = document.querySelectorAll(`input[data-question="${i}"][data-field="pos"]`);
+                    const posInputs = card.querySelectorAll('input[data-field="pos"]');
                     const pos = Array.from(posInputs).map(input => input.value.trim());
                     
-                    const meaningInputs = document.querySelectorAll(`input[data-question="${i}"][data-field="meaning"]`);
+                    const meaningInputs = card.querySelectorAll('input[data-field="meaning"]');
                     const meaning = Array.from(meaningInputs).map(input => input.value.trim());
                     
                     answers.push({ pos, meaning });
                 } else {
-                    const wordInput = document.querySelector(`input[data-question="${i}"][data-field="word"]`);
+                    const wordInput = card.querySelector('input[data-field="word"]');
                     const word = wordInput ? wordInput.value.trim() : '';
                     
                     answers.push({ word });
                 }
-            }
+            });
             
             try {
                 const response = await fetch('/submit_answers', {
@@ -399,10 +399,10 @@
                 if (data.success) {
                     window.location.href = data.redirect;
                 } else {
-                    alert(data.message || '提交失敗，請稍後再試');
+                    alert(data.message || '提交失敗,請稍後再試');
                 }
             } catch (error) {
-                alert('提交失敗，請稍後再試');
+                alert('提交失敗,請稍後再試');
                 console.error('Error:', error);
             }
         }
