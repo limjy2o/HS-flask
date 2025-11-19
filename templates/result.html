@@ -287,15 +287,19 @@
                     <td class="pos-cell">
                         <div class="answer-display">
                             {% if result.mode == 'A' %}
-                                {% for j in range(result.user_pos_list|length) %}
-                                    {% if j > 0 %}<span class="separator">&</span>{% endif %}
-                                    <span>{{ result.user_pos_list[j] if result.user_pos_list[j] else '(未填寫)' }}</span>
-                                {% endfor %}
+                                {% if result.user_pos_list %}
+                                    {% for pos in result.user_pos_list %}
+                                        {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                        <span>{{ pos if pos else '(未填寫)' }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span>(未填寫)</span>
+                                {% endif %}
                             {% else %}
                                 {% set pos_list = question.pos.split('&') %}
-                                {% for j in range(pos_list|length) %}
-                                    {% if j > 0 %}<span class="separator">&</span>{% endif %}
-                                    <span>{{ pos_list[j].strip() }}</span>
+                                {% for pos in pos_list %}
+                                    {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                    <span>{{ pos.strip() }}</span>
                                 {% endfor %}
                             {% endif %}
                         </div>
@@ -303,35 +307,41 @@
                     
                     <!-- 中文解釋 -->
                     <td class="meaning-cell">
-                        <div class="answer-display">
-                            {% if result.mode == 'A' %}
+                        {% if result.mode == 'A' %}
+                            {% if result.user_meaning_list %}
                                 {% set parts = question.meaning.split('&') %}
-                                {% set meaning_index = 0 %}
-                                {% for part_idx in range(parts|length) %}
-                                    {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
-                                    {% set sub_meanings = parts[part_idx].split('、') %}
-                                    {% for sub_idx in range(sub_meanings|length) %}
-                                        {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
-                                        {% if meaning_index < result.user_meaning_list|length %}
-                                            <span>{{ result.user_meaning_list[meaning_index] if result.user_meaning_list[meaning_index] else '(未填寫)' }}</span>
-                                        {% else %}
-                                            <span>(未填寫)</span>
-                                        {% endif %}
-                                        {% set meaning_index = meaning_index + 1 %}
+                                {% set user_idx = 0 %}
+                                <div class="answer-display">
+                                    {% for part in parts %}
+                                        {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                        {% set sub_meanings = part.split('、') %}
+                                        {% for sub in sub_meanings %}
+                                            {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
+                                            {% if user_idx < result.user_meaning_list|length %}
+                                                <span>{{ result.user_meaning_list[user_idx] if result.user_meaning_list[user_idx] else '(未填寫)' }}</span>
+                                                {% set user_idx = user_idx + 1 %}
+                                            {% else %}
+                                                <span>(未填寫)</span>
+                                            {% endif %}
+                                        {% endfor %}
                                     {% endfor %}
-                                {% endfor %}
+                                </div>
                             {% else %}
-                                {% set parts = question.meaning.split('&') %}
-                                {% for part_idx in range(parts|length) %}
-                                    {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
-                                    {% set sub_meanings = parts[part_idx].split('、') %}
-                                    {% for sub_idx in range(sub_meanings|length) %}
-                                        {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
-                                        <span>{{ sub_meanings[sub_idx].strip() }}</span>
+                                <span>(未填寫)</span>
+                            {% endif %}
+                        {% else %}
+                            {% set parts = question.meaning.split('&') %}
+                            <div class="answer-display">
+                                {% for part in parts %}
+                                    {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                    {% set sub_meanings = part.split('、') %}
+                                    {% for sub in sub_meanings %}
+                                        {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
+                                        <span>{{ sub.strip() }}</span>
                                     {% endfor %}
                                 {% endfor %}
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
                     </td>
                 </tr>
                 
@@ -346,9 +356,9 @@
                     <td class="pos-cell">
                         <div class="answer-display">
                             {% set pos_list = question.pos.split('&') %}
-                            {% for j in range(pos_list|length) %}
-                                {% if j > 0 %}<span class="separator">&</span>{% endif %}
-                                <span>{{ pos_list[j].strip() }}</span>
+                            {% for pos in pos_list %}
+                                {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                <span>{{ pos.strip() }}</span>
                             {% endfor %}
                         </div>
                     </td>
@@ -357,12 +367,12 @@
                     <td class="meaning-cell">
                         <div class="answer-display">
                             {% set parts = question.meaning.split('&') %}
-                            {% for part_idx in range(parts|length) %}
-                                {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
-                                {% set sub_meanings = parts[part_idx].split('、') %}
-                                {% for sub_idx in range(sub_meanings|length) %}
-                                    {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
-                                    <span>{{ sub_meanings[sub_idx].strip() }}</span>
+                            {% for part in parts %}
+                                {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
+                                {% set sub_meanings = part.split('、') %}
+                                {% for sub in sub_meanings %}
+                                    {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
+                                    <span>{{ sub.strip() }}</span>
                                 {% endfor %}
                             {% endfor %}
                         </div>

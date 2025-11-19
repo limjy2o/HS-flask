@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """單字測驗系統 Flask 版本"""
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this-in-production'
 app.config['UPLOAD_FOLDER'] = 'vocab_data'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['JSON_AS_ASCII'] = False  # 確保 JSON 正確處理中文
 
 # 確保資料夾存在
 Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
@@ -78,7 +80,8 @@ class QuestionBank:
                 if len(parts) >= 3:
                     self.questions.append(VocabQuestion(parts[0], parts[1], parts[2]))
             return len(self.questions) > 0
-        except:
+        except Exception as e:
+            print(f"Error loading file: {e}")
             return False
     
     def __len__(self) -> int:
@@ -98,8 +101,8 @@ def load_banks():
                     question = VocabQuestion(q_data['word'], q_data['pos'], q_data['meaning'])
                     bank.questions.append(question)
                 question_banks[bank_name] = bank
-        except:
-            pass
+        except Exception as e:
+            print(f"Error loading banks: {e}")
     return question_banks
 
 def save_banks(question_banks):
@@ -113,7 +116,8 @@ def save_banks(question_banks):
         with open(banks_file, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return True
-    except:
+    except Exception as e:
+        print(f"Error saving banks: {e}")
         return False
 
 @app.route('/')
@@ -133,9 +137,15 @@ def upload_bank():
         return jsonify({'success': False, 'message': '沒有選擇檔案'})
     
     if file:
-        filename = secure_filename(file.filename)
-        bank_name = Path(filename).stem
-        filepath = Path(app.config['UPLOAD_FOLDER']) / filename
+        # 使用原始檔名而不是 secure_filename 來保留中文
+        original_filename = file.filename
+        bank_name = Path(original_filename).stem
+        
+        # 創建安全的儲存路徑
+        timestamp = int(time.time() * 1000)
+        safe_filename = f"temp_{timestamp}.txt"
+        filepath = Path(app.config['UPLOAD_FOLDER']) / safe_filename
+        
         file.save(str(filepath))
         
         # 載入題庫
@@ -149,7 +159,7 @@ def upload_bank():
             filepath.unlink()
             return jsonify({
                 'success': True,
-                'message': f'題庫 {bank_name} 載入成功！共 {len(bank)} 題'
+                'message': f'題庫 {bank_name} 載入成功,共 {len(bank)} 題'
             })
         else:
             filepath.unlink()
