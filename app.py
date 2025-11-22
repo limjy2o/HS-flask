@@ -201,12 +201,18 @@ def start_quiz():
     total_available = len(all_questions)
     if count_mode == 'custom':
         try:
+            # 自訂題數：可以選擇任意數量,只要不超過總題數
             target_count = min(int(custom_count), total_available)
+            if target_count < 1:
+                target_count = 1
         except:
             target_count = total_available
     else:
+        # 比例模式：根據比例計算題數
         ratio = float(count_mode)
         target_count = max(1, round(total_available * ratio))
+        # 確保不超過總題數
+        target_count = min(target_count, total_available)
     
     # 隨機選題
     selected_questions = random.sample(all_questions, min(target_count, total_available))

@@ -121,12 +121,12 @@
             color: #ffffff;
         }
         
-        .bank-list, .history-list {
+        .bank-list {
             display: grid;
             gap: 10px;
         }
         
-        .bank-item, .history-item {
+        .bank-item {
             background: var(--bg-color);
             padding: 15px;
             border: 1px solid var(--border-color);
@@ -149,13 +149,19 @@
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             cursor: pointer;
+            transition: background-color 0.2s;
         }
         
         .checkbox-label:hover {
             background: var(--hover-bg);
         }
         
-        .checkbox-label input {
+        .checkbox-label.selected {
+            background: var(--hover-bg);
+            border-color: var(--text-color);
+        }
+        
+        .checkbox-label input[type="checkbox"] {
             margin-right: 10px;
             width: 18px;
             height: 18px;
@@ -196,6 +202,7 @@
         .info-text {
             margin-top: 15px;
             font-size: 1rem;
+            font-weight: bold;
         }
         
         .start-button {
@@ -206,6 +213,12 @@
         .start-button .btn {
             font-size: 1.2rem;
             padding: 12px 40px;
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+        
+        .start-button .btn:hover {
+            opacity: 0.85;
         }
         
         .message {
@@ -213,6 +226,7 @@
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
             display: none;
+            background: var(--section-bg);
         }
         
         .message.show {
@@ -221,24 +235,6 @@
         
         #fileInput {
             display: none;
-        }
-        
-        .history-info {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-        }
-        
-        .history-meta {
-            font-size: 0.9rem;
-            color: var(--text-color);
-            opacity: 0.7;
-        }
-        
-        .history-actions {
-            display: flex;
-            gap: 10px;
         }
     </style>
 </head>
@@ -257,7 +253,7 @@
             
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <p style="margin-bottom: 10px;">點擊上傳題庫檔案</p>
-                <p style="font-size: 0.9rem; opacity: 0.7;">支持 .txt 格式(Tab 分隔:單字、詞性、中文解釋)</p>
+                <p style="font-size: 0.9rem; opacity: 0.7;">支援 .txt 格式 (Tab 分隔: 單字、詞性、中文解釋)</p>
                 <input type="file" id="fileInput" accept=".txt" onchange="uploadBank(event)">
             </div>
             
@@ -281,9 +277,9 @@
             <div class="section-title">題庫選擇</div>
             
             <p style="margin-bottom: 15px; font-weight: bold;">選擇要使用的題庫:</p>
-            <div class="checkbox-group">
+            <div class="checkbox-group" id="bankCheckboxGroup">
                 {% for name, bank in banks.items() %}
-                <label class="checkbox-label">
+                <label class="checkbox-label" data-bank="{{ name }}">
                     <input type="checkbox" name="bank" value="{{ name }}" onchange="updateQuestionCount()">
                     {{ name }} ({{ bank.questions|length }} 題)
                 </label>
@@ -305,8 +301,12 @@
                     3/4
                 </label>
                 <label class="radio-label">
+                    <input type="radio" name="count_mode" value="1.0" onchange="toggleCustomInput()">
+                    全部
+                </label>
+                <label class="radio-label">
                     <input type="radio" name="count_mode" value="custom" onchange="toggleCustomInput()">
-                    自訂:<input type="number" id="customCount" class="custom-input" value="100" min="1" onclick="selectCustomMode(event)"> 題
+                    自訂: <input type="number" id="customCount" class="custom-input" value="100" min="1" onclick="selectCustomMode(event)"> 題
                 </label>
             </div>
             
@@ -337,38 +337,6 @@
         <!-- 開始測驗 -->
         <div class="start-button">
             <button class="btn" onclick="startQuiz()">開始測驗</button>
-        </div>
-        {% endif %}
-        
-        <!-- 測驗歷史 -->
-        {% if history %}
-        <div class="section">
-            <div class="section-title">測驗歷史</div>
-            
-            <div class="history-list">
-                {% for record in history %}
-                <div class="history-item">
-                    <div class="history-info">
-                        <div>
-                            <strong>{{ record.datetime }}</strong>
-                        </div>
-                        <div class="history-meta">
-                            模式: {{ record.mode_name }} | 
-                            成績: {{ record.correct_count }}/{{ record.total_questions }} 
-                            ({{ "%.1f"|format(record.correct_count / record.total_questions * 100) }}%) | 
-                            耗時: {{ record.total_time // 60 }}分{{ record.total_time % 60 }}秒
-                        </div>
-                        <div class="history-meta">
-                            題庫: {{ record.banks|join(', ') }}
-                        </div>
-                    </div>
-                    <div class="history-actions">
-                        <button class="btn" onclick="window.location.href='/history/{{ record.id }}'">查看詳情</button>
-                        <button class="btn btn-danger" onclick="deleteHistory('{{ record.id }}')">刪除</button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
         </div>
         {% endif %}
     </div>
@@ -408,7 +376,7 @@
         function toggleCustomInput() {
             const customRadio = document.querySelector('input[name="count_mode"][value="custom"]');
             const customInput = document.getElementById('customCount');
-            if (customRadio.checked) {
+            if (customRadio && customRadio.checked) {
                 customInput.removeAttribute('disabled');
                 customInput.focus();
             } else {
@@ -419,6 +387,19 @@
         // 初始化自訂輸入框狀態
         (function() {
             toggleCustomInput();
+            
+            // 為 checkbox 添加視覺回饋
+            const checkboxes = document.querySelectorAll('.checkbox-label input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const label = this.closest('.checkbox-label');
+                    if (this.checked) {
+                        label.classList.add('selected');
+                    } else {
+                        label.classList.remove('selected');
+                    }
+                });
+            });
         })();
         
         async function uploadBank(event) {
@@ -454,29 +435,7 @@
             }
             
             try {
-                const response = await fetch(`/delete_bank/${bankName}`, {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showMessage(data.message);
-                    setTimeout(() => location.reload(), 1000);
-                } else {
-                    showMessage(data.message);
-                }
-            } catch (error) {
-                showMessage('刪除失敗,請稍後再試');
-            }
-        }
-        
-        async function deleteHistory(historyId) {
-            if (!confirm('確定要刪除此測驗紀錄嗎?\n此操作無法復原。')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/delete_history/${historyId}`, {
+                const response = await fetch(`/delete_bank/${encodeURIComponent(bankName)}`, {
                     method: 'POST'
                 });
                 const data = await response.json();
@@ -548,6 +507,7 @@
                 }
             } catch (error) {
                 showMessage('啟動測驗失敗,請稍後再試');
+                console.error('Error:', error);
             }
         }
     </script>

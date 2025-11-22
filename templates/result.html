@@ -11,8 +11,8 @@
             --border-color: #d0d0d0;
             --hover-bg: #f5f5f5;
             --section-bg: #fafafa;
-            --correct-bg: #f0f0f0;
-            --incorrect-bg: #f0f0f0;
+            --correct-bg: #e8f5e9;
+            --incorrect-bg: #ffebee;
         }
         
         [data-theme="dark"] {
@@ -21,8 +21,8 @@
             --border-color: #404040;
             --hover-bg: #2a2a2a;
             --section-bg: #222222;
-            --correct-bg: #2a2a2a;
-            --incorrect-bg: #2a2a2a;
+            --correct-bg: #1b5e20;
+            --incorrect-bg: #b71c1c;
         }
         
         * {
@@ -70,11 +70,6 @@
         
         .theme-toggle:hover {
             background: var(--hover-bg);
-        }
-        
-        .score-info {
-            font-size: 1.1rem;
-            margin: 10px 0;
         }
         
         .stats {
@@ -136,15 +131,15 @@
         }
         
         .word-cell {
-            min-width: 200px;
+            min-width: 150px;
         }
         
         .pos-cell {
-            min-width: 200px;
+            min-width: 150px;
         }
         
         .meaning-cell {
-            min-width: 300px;
+            min-width: 250px;
         }
         
         .user-answer-row {
@@ -178,6 +173,7 @@
         
         .separator {
             font-weight: bold;
+            color: #666;
         }
         
         .word-display {
@@ -217,11 +213,6 @@
         <div class="header">
             <div>
                 <h1>測驗結果</h1>
-                {% if is_history %}
-                <div class="score-info" style="font-size: 0.9rem; opacity: 0.7; margin-top: 5px;">
-                    測驗日期: {{ history_date }}
-                </div>
-                {% endif %}
             </div>
             <button class="theme-toggle" onclick="toggleTheme()">切換深色/淺色模式</button>
         </div>
@@ -287,57 +278,52 @@
                     <td class="pos-cell">
                         <div class="answer-display">
                             {% if result.mode == 'A' %}
-                                {% if result.user_pos_list %}
-                                    {% for pos in result.user_pos_list %}
-                                        {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                        <span>{{ pos if pos else '(未填寫)' }}</span>
+                                {% if result.user_pos_list and result.user_pos_list|length > 0 %}
+                                    {% for idx in range(result.user_pos_list|length) %}
+                                        {% if idx > 0 %}<span class="separator">&</span>{% endif %}
+                                        <span>{{ result.user_pos_list[idx] if result.user_pos_list[idx] else '(未填寫)' }}</span>
                                     {% endfor %}
                                 {% else %}
                                     <span>(未填寫)</span>
                                 {% endif %}
                             {% else %}
                                 {% set pos_list = question.pos.split('&') %}
-                                {% for pos in pos_list %}
-                                    {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                    <span>{{ pos.strip() }}</span>
+                                {% for idx in range(pos_list|length) %}
+                                    {% if idx > 0 %}<span class="separator">&</span>{% endif %}
+                                    <span>{{ pos_list[idx].strip() }}</span>
                                 {% endfor %}
                             {% endif %}
                         </div>
                     </td>
                     
-                    <!-- 中文解釋 -->
+                    <!-- 中文解釋 (使用者答案) -->
                     <td class="meaning-cell">
                         {% if result.mode == 'A' %}
-                            {% if result.user_meaning_list %}
-                                {% set parts = question.meaning.split('&') %}
-                                {% set user_idx = 0 %}
-                                <div class="answer-display">
-                                    {% for part in parts %}
-                                        {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                        {% set sub_meanings = part.split('、') %}
-                                        {% for sub in sub_meanings %}
-                                            {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
-                                            {% if user_idx < result.user_meaning_list|length %}
-                                                <span>{{ result.user_meaning_list[user_idx] if result.user_meaning_list[user_idx] else '(未填寫)' }}</span>
-                                                {% set user_idx = user_idx + 1 %}
-                                            {% else %}
-                                                <span>(未填寫)</span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <span>(未填寫)</span>
-                            {% endif %}
-                        {% else %}
-                            {% set parts = question.meaning.split('&') %}
                             <div class="answer-display">
-                                {% for part in parts %}
-                                    {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                    {% set sub_meanings = part.split('、') %}
-                                    {% for sub in sub_meanings %}
-                                        {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
-                                        <span>{{ sub.strip() }}</span>
+                                {% if result.user_meaning_list and result.user_meaning_list|length > 0 %}
+                                    {% for idx in range(result.user_meaning_list|length) %}
+                                        {% if idx > 0 %}
+                                            {% if (question.meaning.split('&')|length > 1) and ((idx % (question.meaning.replace('、', '&').split('&')|length / question.meaning.split('&')|length)|int) == 0) %}
+                                                <span class="separator">&</span>
+                                            {% else %}
+                                                <span class="separator">、</span>
+                                            {% endif %}
+                                        {% endif %}
+                                        <span>{{ result.user_meaning_list[idx] if result.user_meaning_list[idx] else '(未填寫)' }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span>(未填寫)</span>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="answer-display">
+                                {% set parts = question.meaning.split('&') %}
+                                {% for part_idx in range(parts|length) %}
+                                    {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
+                                    {% set sub_meanings = parts[part_idx].split('、') %}
+                                    {% for sub_idx in range(sub_meanings|length) %}
+                                        {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
+                                        <span>{{ sub_meanings[sub_idx].strip() }}</span>
                                     {% endfor %}
                                 {% endfor %}
                             </div>
@@ -356,23 +342,23 @@
                     <td class="pos-cell">
                         <div class="answer-display">
                             {% set pos_list = question.pos.split('&') %}
-                            {% for pos in pos_list %}
-                                {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                <span>{{ pos.strip() }}</span>
+                            {% for idx in range(pos_list|length) %}
+                                {% if idx > 0 %}<span class="separator">&</span>{% endif %}
+                                <span>{{ pos_list[idx].strip() }}</span>
                             {% endfor %}
                         </div>
                     </td>
                     
-                    <!-- 中文解釋 -->
+                    <!-- 中文解釋 (正確答案) -->
                     <td class="meaning-cell">
                         <div class="answer-display">
                             {% set parts = question.meaning.split('&') %}
-                            {% for part in parts %}
-                                {% if loop.index > 1 %}<span class="separator">&</span>{% endif %}
-                                {% set sub_meanings = part.split('、') %}
-                                {% for sub in sub_meanings %}
-                                    {% if loop.index > 1 %}<span class="separator">、</span>{% endif %}
-                                    <span>{{ sub.strip() }}</span>
+                            {% for part_idx in range(parts|length) %}
+                                {% if part_idx > 0 %}<span class="separator">&</span>{% endif %}
+                                {% set sub_meanings = parts[part_idx].split('、') %}
+                                {% for sub_idx in range(sub_meanings|length) %}
+                                    {% if sub_idx > 0 %}<span class="separator">、</span>{% endif %}
+                                    <span>{{ sub_meanings[sub_idx].strip() }}</span>
                                 {% endfor %}
                             {% endfor %}
                         </div>
@@ -383,9 +369,9 @@
                 <tr>
                     <td colspan="4" class="status-cell">
                         {% if is_correct %}
-                            正確
+                            ✓ 正確
                         {% else %}
-                            錯誤
+                            ✗ 錯誤
                         {% endif %}
                     </td>
                 </tr>
@@ -399,7 +385,6 @@
     </div>
     
     <script>
-        // 主題切換
         function toggleTheme() {
             const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme');
@@ -408,7 +393,6 @@
             localStorage.setItem('theme', newTheme);
         }
         
-        // 載入儲存的主題
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
