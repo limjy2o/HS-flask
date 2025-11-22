@@ -7,6 +7,8 @@ import os
 import json
 import random
 import time
+import pickle
+import hashlib
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Dict
@@ -17,11 +19,16 @@ app.secret_key = 'your-secret-key-change-this-in-production'
 app.config['UPLOAD_FOLDER'] = 'vocab_data'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['JSON_AS_ASCII'] = False  # 確保 JSON 正確處理中文
-app.config['SESSION_TYPE'] = 'filesystem'  # 使用檔案系統儲存 session
-app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # Session 有效期 1 小時
+# 增大 session cookie 的大小限制
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['MAX_COOKIE_SIZE'] = 4093  # 默認值
 
 # 確保資料夾存在
 Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
+# 創建臨時測驗資料夾
+QUIZ_DATA_FOLDER = Path(app.config['UPLOAD_FOLDER']) / 'quiz_sessions'
+QUIZ_DATA_FOLDER.mkdir(exist_ok=True)
 
 class TestMode(Enum):
     MODE_A = "A"
@@ -122,9 +129,63 @@ def save_banks(question_banks):
         print(f"Error saving banks: {e}")
         return False
 
+def generate_quiz_id():
+    """生成唯一的測驗 ID"""
+    timestamp = str(time.time()).encode('utf-8')
+    random_str = str(random.random()).encode('utf-8')
+    return hashlib.md5(timestamp + random_str).hexdigest()
+
+def save_quiz_data(quiz_id, data):
+    """將測驗資料儲存到檔案而非 session"""
+    try:
+        quiz_file = QUIZ_DATA_FOLDER / f"{quiz_id}.pkl"
+        with open(quiz_file, 'wb') as f:
+            pickle.dump(data, f)
+        return True
+    except Exception as e:
+        print(f"Error saving quiz data: {e}")
+        return False
+
+def load_quiz_data(quiz_id):
+    """從檔案載入測驗資料"""
+    try:
+        quiz_file = QUIZ_DATA_FOLDER / f"{quiz_id}.pkl"
+        if not quiz_file.exists():
+            return None
+        with open(quiz_file, 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        print(f"Error loading quiz data: {e}")
+        return None
+
+def delete_quiz_data(quiz_id):
+    """刪除測驗資料檔案"""
+    try:
+        quiz_file = QUIZ_DATA_FOLDER / f"{quiz_id}.pkl"
+        if quiz_file.exists():
+            quiz_file.unlink()
+    except Exception as e:
+        print(f"Error deleting quiz data: {e}")
+
+def cleanup_old_quiz_files():
+    """清理超過 2 小時的舊測驗檔案"""
+    try:
+        current_time = time.time()
+        for quiz_file in QUIZ_DATA_FOLDER.glob("*.pkl"):
+            file_age = current_time - quiz_file.stat().st_mtime
+            # 刪除超過 2 小時的檔案
+            if file_age > 7200:
+                quiz_file.unlink()
+                print(f"Cleaned up old quiz file: {quiz_file.name}")
+    except Exception as e:
+        print(f"Error cleaning up quiz files: {e}")
+
 @app.route('/')
 def index():
     """主頁面"""
+    # 清理舊的測驗檔案
+    cleanup_old_quiz_files()
+    
     question_banks = load_banks()
     return render_template('index.html', banks=question_banks)
 
@@ -187,7 +248,7 @@ def start_quiz():
         custom_count = data.get('custom_count', 100)
         test_mode = data.get('test_mode', 'A')
         
-        print(f"Starting quiz - Banks: {selected_banks}, Mode: {count_mode}, Custom: {custom_count}")  # Debug
+        print(f"Starting quiz - Banks: {selected_banks}, Mode: {count_mode}, Custom: {custom_count}")
         
         if not selected_banks:
             return jsonify({'success': False, 'message': '請至少選擇一個題庫'})
@@ -204,29 +265,26 @@ def start_quiz():
         
         # 計算題數
         total_available = len(all_questions)
-        print(f"Total available questions: {total_available}")  # Debug
+        print(f"Total available questions: {total_available}")
         
         if count_mode == 'custom':
             try:
-                # 自訂題數：可以選擇任意數量,只要不超過總題數
                 requested_count = int(custom_count)
                 target_count = min(requested_count, total_available)
                 if target_count < 1:
                     target_count = 1
-                print(f"Custom mode: requested {requested_count}, using {target_count}")  # Debug
+                print(f"Custom mode: requested {requested_count}, using {target_count}")
             except ValueError:
-                print(f"Invalid custom count: {custom_count}, using all questions")  # Debug
+                print(f"Invalid custom count: {custom_count}, using all questions")
                 target_count = total_available
         else:
-            # 比例模式：根據比例計算題數
             try:
                 ratio = float(count_mode)
                 target_count = max(1, round(total_available * ratio))
-                # 確保不超過總題數
                 target_count = min(target_count, total_available)
-                print(f"Ratio mode: {ratio} of {total_available} = {target_count}")  # Debug
+                print(f"Ratio mode: {ratio} of {total_available} = {target_count}")
             except ValueError:
-                print(f"Invalid ratio: {count_mode}, using 3/4")  # Debug
+                print(f"Invalid ratio: {count_mode}, using 3/4")
                 target_count = max(1, round(total_available * 0.75))
         
         # 確保題數有效
@@ -235,7 +293,7 @@ def start_quiz():
         if target_count < 1:
             target_count = 1
             
-        print(f"Final target count: {target_count}")  # Debug
+        print(f"Final target count: {target_count}")
         
         # 隨機選題
         selected_questions = random.sample(all_questions, target_count)
@@ -249,19 +307,28 @@ def start_quiz():
             else:
                 question_modes.append(test_mode)
         
-        # 儲存到 session
-        session['questions'] = [q.to_dict() for q in selected_questions]
-        session['question_modes'] = question_modes
-        session['test_mode'] = test_mode
-        session['start_time'] = time.time()
+        # 生成測驗 ID 並儲存到檔案
+        quiz_id = generate_quiz_id()
+        quiz_data = {
+            'questions': [q.to_dict() for q in selected_questions],
+            'question_modes': question_modes,
+            'test_mode': test_mode,
+            'start_time': time.time()
+        }
+        
+        if not save_quiz_data(quiz_id, quiz_data):
+            return jsonify({'success': False, 'message': '無法儲存測驗資料'})
+        
+        # 只在 session 中儲存測驗 ID
+        session['quiz_id'] = quiz_id
         session.modified = True
         
-        print(f"Session saved: {len(selected_questions)} questions")  # Debug
+        print(f"Quiz created with ID: {quiz_id}, {len(selected_questions)} questions")
         
         return jsonify({'success': True, 'redirect': url_for('quiz')})
         
     except Exception as e:
-        print(f"Error in start_quiz: {e}")  # Debug
+        print(f"Error in start_quiz: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'message': f'啟動測驗失敗: {str(e)}'})
@@ -270,19 +337,26 @@ def start_quiz():
 def quiz():
     """測驗頁面"""
     try:
-        if 'questions' not in session:
-            print("No questions in session, redirecting to index")  # Debug
+        quiz_id = session.get('quiz_id')
+        if not quiz_id:
+            print("No quiz_id in session, redirecting to index")
             return redirect(url_for('index'))
         
-        questions = session.get('questions', [])
-        question_modes = session.get('question_modes', [])
-        test_mode = session.get('test_mode', 'A')
+        # 從檔案載入測驗資料
+        quiz_data = load_quiz_data(quiz_id)
+        if not quiz_data:
+            print(f"Failed to load quiz data for ID: {quiz_id}")
+            return redirect(url_for('index'))
+        
+        questions = quiz_data.get('questions', [])
+        question_modes = quiz_data.get('question_modes', [])
+        test_mode = quiz_data.get('test_mode', 'A')
         
         if not questions or not question_modes:
-            print("Empty questions or modes, redirecting to index")  # Debug
+            print("Empty questions or modes, redirecting to index")
             return redirect(url_for('index'))
         
-        print(f"Rendering quiz page: {len(questions)} questions")  # Debug
+        print(f"Rendering quiz page: {len(questions)} questions")
         
         mode_names = {
             'A': '中文解釋及詞性測驗',
@@ -296,7 +370,7 @@ def quiz():
                              test_mode=test_mode,
                              mode_name=mode_names.get(test_mode, '測驗'))
     except Exception as e:
-        print(f"Error in quiz route: {e}")  # Debug
+        print(f"Error in quiz route: {e}")
         import traceback
         traceback.print_exc()
         return redirect(url_for('index'))
@@ -305,15 +379,21 @@ def quiz():
 def submit_answers():
     """提交答案並批改"""
     try:
-        if 'questions' not in session:
+        quiz_id = session.get('quiz_id')
+        if not quiz_id:
             return jsonify({'success': False, 'message': '測驗已過期,請重新開始'})
+        
+        # 從檔案載入測驗資料
+        quiz_data = load_quiz_data(quiz_id)
+        if not quiz_data:
+            return jsonify({'success': False, 'message': '測驗資料遺失,請重新開始'})
         
         data = request.json
         user_answers = data.get('answers', [])
         
-        questions_data = session.get('questions', [])
-        question_modes = session.get('question_modes', [])
-        start_time = session.get('start_time', time.time())
+        questions_data = quiz_data.get('questions', [])
+        question_modes = quiz_data.get('question_modes', [])
+        start_time = quiz_data.get('start_time', time.time())
         
         if not questions_data or not question_modes:
             return jsonify({'success': False, 'message': '測驗資料遺失,請重新開始'})
@@ -355,35 +435,58 @@ def submit_answers():
         end_time = time.time()
         total_time = int(end_time - start_time)
         
-        # 儲存結果到 session
-        session['results'] = results
-        session['correct_count'] = correct_count
-        session['total_time'] = total_time
-        session.modified = True  # 確保 session 被標記為已修改
+        # 儲存結果到檔案
+        result_data = {
+            'results': results,
+            'correct_count': correct_count,
+            'total_time': total_time
+        }
         
-        print(f"Results saved to session: {len(results)} questions, {correct_count} correct")  # Debug log
+        result_id = generate_quiz_id()
+        if not save_quiz_data(result_id, result_data):
+            return jsonify({'success': False, 'message': '無法儲存測驗結果'})
+        
+        # 只在 session 中儲存結果 ID
+        session['result_id'] = result_id
+        session.modified = True
+        
+        # 刪除測驗資料
+        delete_quiz_data(quiz_id)
+        if 'quiz_id' in session:
+            del session['quiz_id']
+        
+        print(f"Results saved with ID: {result_id}, {len(results)} questions, {correct_count} correct")
         
         return jsonify({'success': True, 'redirect': url_for('result')})
         
     except Exception as e:
-        print(f"Error in submit_answers: {e}")  # Debug log
+        print(f"Error in submit_answers: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': f'提交失敗: {str(e)}'})
 
 @app.route('/result')
 def result():
     """結果頁面"""
     try:
-        if 'results' not in session:
-            print("No results in session, redirecting to index")  # Debug log
+        result_id = session.get('result_id')
+        if not result_id:
+            print("No result_id in session, redirecting to index")
             return redirect(url_for('index'))
         
-        results = session.get('results', [])
-        correct_count = session.get('correct_count', 0)
-        total_time = session.get('total_time', 0)
+        # 從檔案載入結果資料
+        result_data = load_quiz_data(result_id)
+        if not result_data:
+            print(f"Failed to load result data for ID: {result_id}")
+            return redirect(url_for('index'))
+        
+        results = result_data.get('results', [])
+        correct_count = result_data.get('correct_count', 0)
+        total_time = result_data.get('total_time', 0)
         total_questions = len(results)
         accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
         
-        print(f"Rendering result page: {total_questions} questions, {correct_count} correct")  # Debug log
+        print(f"Rendering result page: {total_questions} questions, {correct_count} correct")
         
         return render_template('result.html',
                              results=results,
@@ -392,7 +495,9 @@ def result():
                              accuracy=accuracy,
                              total_time=total_time)
     except Exception as e:
-        print(f"Error in result route: {e}")  # Debug log
+        print(f"Error in result route: {e}")
+        import traceback
+        traceback.print_exc()
         return redirect(url_for('index'))
 
 @app.route('/get_bank_count', methods=['POST'])
