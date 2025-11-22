@@ -400,6 +400,23 @@
                     }
                 });
             });
+            
+            // 為題數選項添加事件監聽器
+            const countModeRadios = document.querySelectorAll('input[name="count_mode"]');
+            countModeRadios.forEach(radio => {
+                radio.addEventListener('change', updateQuestionCount);
+            });
+            
+            // 為自訂題數輸入框添加事件監聽器
+            const customCountInput = document.getElementById('customCount');
+            if (customCountInput) {
+                customCountInput.addEventListener('input', function() {
+                    const customRadio = document.querySelector('input[name="count_mode"][value="custom"]');
+                    if (customRadio && customRadio.checked) {
+                        updateQuestionCount();
+                    }
+                });
+            }
         })();
         
         async function uploadBank(event) {
@@ -455,8 +472,10 @@
             const selected = Array.from(document.querySelectorAll('input[name="bank"]:checked'))
                 .map(cb => cb.value);
             
+            const totalCountText = document.getElementById('totalCountText');
+            
             if (selected.length === 0) {
-                document.getElementById('totalCountText').textContent = '';
+                totalCountText.textContent = '';
                 return;
             }
             
@@ -467,10 +486,28 @@
                     body: JSON.stringify({selected_banks: selected})
                 });
                 const data = await response.json();
-                document.getElementById('totalCountText').textContent = 
-                    `已選題庫總題數: ${data.total} 題`;
+                
+                const total = data.total;
+                const countMode = document.querySelector('input[name="count_mode"]:checked').value;
+                
+                let displayText = `已選題庫總題數: ${total} 題`;
+                
+                // 顯示實際會抽取的題數
+                if (countMode === 'custom') {
+                    const customCount = parseInt(document.getElementById('customCount').value) || 0;
+                    const actualCount = Math.min(customCount, total);
+                    displayText += ` → 將抽取 ${actualCount} 題`;
+                } else if (countMode !== '1.0') {
+                    const ratio = parseFloat(countMode);
+                    const actualCount = Math.max(1, Math.round(total * ratio));
+                    displayText += ` → 將抽取 ${actualCount} 題`;
+                } else {
+                    displayText += ` → 將抽取全部`;
+                }
+                
+                totalCountText.textContent = displayText;
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error updating question count:', error);
             }
         }
         
@@ -484,8 +521,24 @@
             }
             
             const countMode = document.querySelector('input[name="count_mode"]:checked').value;
-            const customCount = document.getElementById('customCount').value;
+            let customCount = document.getElementById('customCount').value;
             const testMode = document.querySelector('input[name="test_mode"]:checked').value;
+            
+            // 驗證自訂題數
+            if (countMode === 'custom') {
+                const customCountNum = parseInt(customCount);
+                if (isNaN(customCountNum) || customCountNum < 1) {
+                    showMessage('請輸入有效的題數 (至少 1 題)');
+                    return;
+                }
+            }
+            
+            console.log('Starting quiz with:', {
+                selected_banks: selected,
+                count_mode: countMode,
+                custom_count: customCount,
+                test_mode: testMode
+            });
             
             try {
                 const response = await fetch('/start_quiz', {
@@ -498,16 +551,22 @@
                         test_mode: testMode
                     })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('Server response:', data);
                 
                 if (data.success) {
                     window.location.href = data.redirect;
                 } else {
-                    showMessage(data.message);
+                    showMessage(data.message || '啟動測驗失敗');
                 }
             } catch (error) {
-                showMessage('啟動測驗失敗,請稍後再試');
-                console.error('Error:', error);
+                console.error('Error starting quiz:', error);
+                showMessage('啟動測驗失敗,請稍後再試: ' + error.message);
             }
         }
     </script>

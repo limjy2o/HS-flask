@@ -180,83 +180,126 @@ def delete_bank(bank_name):
 @app.route('/start_quiz', methods=['POST'])
 def start_quiz():
     """開始測驗"""
-    data = request.json
-    selected_banks = data.get('selected_banks', [])
-    count_mode = data.get('count_mode', '0.75')
-    custom_count = data.get('custom_count', 100)
-    test_mode = data.get('test_mode', 'A')
-    
-    if not selected_banks:
-        return jsonify({'success': False, 'message': '請至少選擇一個題庫'})
-    
-    # 準備題目
-    question_banks = load_banks()
-    all_questions = []
-    for bank_name in selected_banks:
-        if bank_name in question_banks:
-            all_questions.extend(question_banks[bank_name].questions)
-    
-    if not all_questions:
-        return jsonify({'success': False, 'message': '沒有可用的題目'})
-    
-    # 計算題數
-    total_available = len(all_questions)
-    if count_mode == 'custom':
-        try:
-            # 自訂題數：可以選擇任意數量,只要不超過總題數
-            target_count = min(int(custom_count), total_available)
-            if target_count < 1:
-                target_count = 1
-        except:
-            target_count = total_available
-    else:
-        # 比例模式：根據比例計算題數
-        ratio = float(count_mode)
-        target_count = max(1, round(total_available * ratio))
-        # 確保不超過總題數
-        target_count = min(target_count, total_available)
-    
-    # 隨機選題
-    selected_questions = random.sample(all_questions, min(target_count, total_available))
-    random.shuffle(selected_questions)
-    
-    # 設定題目模式
-    question_modes = []
-    for _ in selected_questions:
-        if test_mode == 'C':
-            question_modes.append(random.choice(['A', 'B']))
+    try:
+        data = request.json
+        selected_banks = data.get('selected_banks', [])
+        count_mode = data.get('count_mode', '0.75')
+        custom_count = data.get('custom_count', 100)
+        test_mode = data.get('test_mode', 'A')
+        
+        print(f"Starting quiz - Banks: {selected_banks}, Mode: {count_mode}, Custom: {custom_count}")  # Debug
+        
+        if not selected_banks:
+            return jsonify({'success': False, 'message': '請至少選擇一個題庫'})
+        
+        # 準備題目
+        question_banks = load_banks()
+        all_questions = []
+        for bank_name in selected_banks:
+            if bank_name in question_banks:
+                all_questions.extend(question_banks[bank_name].questions)
+        
+        if not all_questions:
+            return jsonify({'success': False, 'message': '沒有可用的題目'})
+        
+        # 計算題數
+        total_available = len(all_questions)
+        print(f"Total available questions: {total_available}")  # Debug
+        
+        if count_mode == 'custom':
+            try:
+                # 自訂題數：可以選擇任意數量,只要不超過總題數
+                requested_count = int(custom_count)
+                target_count = min(requested_count, total_available)
+                if target_count < 1:
+                    target_count = 1
+                print(f"Custom mode: requested {requested_count}, using {target_count}")  # Debug
+            except ValueError:
+                print(f"Invalid custom count: {custom_count}, using all questions")  # Debug
+                target_count = total_available
         else:
-            question_modes.append(test_mode)
-    
-    # 儲存到 session
-    session['questions'] = [q.to_dict() for q in selected_questions]
-    session['question_modes'] = question_modes
-    session['test_mode'] = test_mode
-    session['start_time'] = time.time()
-    
-    return jsonify({'success': True, 'redirect': url_for('quiz')})
+            # 比例模式：根據比例計算題數
+            try:
+                ratio = float(count_mode)
+                target_count = max(1, round(total_available * ratio))
+                # 確保不超過總題數
+                target_count = min(target_count, total_available)
+                print(f"Ratio mode: {ratio} of {total_available} = {target_count}")  # Debug
+            except ValueError:
+                print(f"Invalid ratio: {count_mode}, using 3/4")  # Debug
+                target_count = max(1, round(total_available * 0.75))
+        
+        # 確保題數有效
+        if target_count > total_available:
+            target_count = total_available
+        if target_count < 1:
+            target_count = 1
+            
+        print(f"Final target count: {target_count}")  # Debug
+        
+        # 隨機選題
+        selected_questions = random.sample(all_questions, target_count)
+        random.shuffle(selected_questions)
+        
+        # 設定題目模式
+        question_modes = []
+        for _ in selected_questions:
+            if test_mode == 'C':
+                question_modes.append(random.choice(['A', 'B']))
+            else:
+                question_modes.append(test_mode)
+        
+        # 儲存到 session
+        session['questions'] = [q.to_dict() for q in selected_questions]
+        session['question_modes'] = question_modes
+        session['test_mode'] = test_mode
+        session['start_time'] = time.time()
+        session.modified = True
+        
+        print(f"Session saved: {len(selected_questions)} questions")  # Debug
+        
+        return jsonify({'success': True, 'redirect': url_for('quiz')})
+        
+    except Exception as e:
+        print(f"Error in start_quiz: {e}")  # Debug
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'啟動測驗失敗: {str(e)}'})
 
 @app.route('/quiz')
 def quiz():
     """測驗頁面"""
-    if 'questions' not in session:
+    try:
+        if 'questions' not in session:
+            print("No questions in session, redirecting to index")  # Debug
+            return redirect(url_for('index'))
+        
+        questions = session.get('questions', [])
+        question_modes = session.get('question_modes', [])
+        test_mode = session.get('test_mode', 'A')
+        
+        if not questions or not question_modes:
+            print("Empty questions or modes, redirecting to index")  # Debug
+            return redirect(url_for('index'))
+        
+        print(f"Rendering quiz page: {len(questions)} questions")  # Debug
+        
+        mode_names = {
+            'A': '中文解釋及詞性測驗',
+            'B': '拼字測驗',
+            'C': '混合模式'
+        }
+        
+        return render_template('quiz.html',
+                             questions=questions,
+                             question_modes=question_modes,
+                             test_mode=test_mode,
+                             mode_name=mode_names.get(test_mode, '測驗'))
+    except Exception as e:
+        print(f"Error in quiz route: {e}")  # Debug
+        import traceback
+        traceback.print_exc()
         return redirect(url_for('index'))
-    
-    questions = session['questions']
-    question_modes = session['question_modes']
-    test_mode = session['test_mode']
-    
-    mode_names = {
-        'A': '中文解釋及詞性測驗',
-        'B': '拼字測驗',
-        'C': '混合模式'
-    }
-    
-    return render_template('quiz.html',
-                         questions=questions,
-                         question_modes=question_modes,
-                         test_mode=test_mode,
-                         mode_name=mode_names[test_mode])
 
 @app.route('/submit_answers', methods=['POST'])
 def submit_answers():
@@ -329,21 +372,28 @@ def submit_answers():
 @app.route('/result')
 def result():
     """結果頁面"""
-    if 'results' not in session:
+    try:
+        if 'results' not in session:
+            print("No results in session, redirecting to index")  # Debug log
+            return redirect(url_for('index'))
+        
+        results = session.get('results', [])
+        correct_count = session.get('correct_count', 0)
+        total_time = session.get('total_time', 0)
+        total_questions = len(results)
+        accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
+        
+        print(f"Rendering result page: {total_questions} questions, {correct_count} correct")  # Debug log
+        
+        return render_template('result.html',
+                             results=results,
+                             correct_count=correct_count,
+                             total_questions=total_questions,
+                             accuracy=accuracy,
+                             total_time=total_time)
+    except Exception as e:
+        print(f"Error in result route: {e}")  # Debug log
         return redirect(url_for('index'))
-    
-    results = session['results']
-    correct_count = session['correct_count']
-    total_time = session['total_time']
-    total_questions = len(results)
-    accuracy = (correct_count / total_questions * 100) if total_questions > 0 else 0
-    
-    return render_template('result.html',
-                         results=results,
-                         correct_count=correct_count,
-                         total_questions=total_questions,
-                         accuracy=accuracy,
-                         total_time=total_time)
 
 @app.route('/get_bank_count', methods=['POST'])
 def get_bank_count():
