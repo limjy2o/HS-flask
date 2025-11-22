@@ -17,6 +17,8 @@ app.secret_key = 'your-secret-key-change-this-in-production'
 app.config['UPLOAD_FOLDER'] = 'vocab_data'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['JSON_AS_ASCII'] = False  # 確保 JSON 正確處理中文
+app.config['SESSION_TYPE'] = 'filesystem'  # 使用檔案系統儲存 session
+app.config['PERMANENT_SESSION_LIFETIME'] = 3600  # Session 有效期 1 小時
 
 # 確保資料夾存在
 Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True)
@@ -259,59 +261,70 @@ def quiz():
 @app.route('/submit_answers', methods=['POST'])
 def submit_answers():
     """提交答案並批改"""
-    if 'questions' not in session:
-        return jsonify({'success': False, 'message': '測驗已過期'})
-    
-    data = request.json
-    user_answers = data.get('answers', [])
-    
-    questions_data = session['questions']
-    question_modes = session['question_modes']
-    start_time = session.get('start_time', time.time())
-    
-    # 重建 VocabQuestion 物件
-    questions = [VocabQuestion(q['word'], q['pos'], q['meaning']) for q in questions_data]
-    
-    # 批改答案
-    results = []
-    correct_count = 0
-    
-    for i, (question, mode) in enumerate(zip(questions, question_modes)):
-        user_answer = user_answers[i] if i < len(user_answers) else {}
+    try:
+        if 'questions' not in session:
+            return jsonify({'success': False, 'message': '測驗已過期,請重新開始'})
         
-        if mode == 'A':
-            user_pos_list = user_answer.get('pos', [])
-            user_meaning_list = user_answer.get('meaning', [])
-            is_correct = question.check_answer_mode_a(user_pos_list, user_meaning_list)
-            results.append({
-                'mode': 'A',
-                'question': question.to_dict(),
-                'user_pos_list': user_pos_list,
-                'user_meaning_list': user_meaning_list,
-                'correct': is_correct
-            })
-        else:  # mode == 'B'
-            user_word = user_answer.get('word', '')
-            is_correct = question.check_answer_mode_b(user_word)
-            results.append({
-                'mode': 'B',
-                'question': question.to_dict(),
-                'user_word': user_word,
-                'correct': is_correct
-            })
+        data = request.json
+        user_answers = data.get('answers', [])
         
-        if is_correct:
-            correct_count += 1
-    
-    end_time = time.time()
-    total_time = int(end_time - start_time)
-    
-    # 儲存結果到 session
-    session['results'] = results
-    session['correct_count'] = correct_count
-    session['total_time'] = total_time
-    
-    return jsonify({'success': True, 'redirect': url_for('result')})
+        questions_data = session.get('questions', [])
+        question_modes = session.get('question_modes', [])
+        start_time = session.get('start_time', time.time())
+        
+        if not questions_data or not question_modes:
+            return jsonify({'success': False, 'message': '測驗資料遺失,請重新開始'})
+        
+        # 重建 VocabQuestion 物件
+        questions = [VocabQuestion(q['word'], q['pos'], q['meaning']) for q in questions_data]
+        
+        # 批改答案
+        results = []
+        correct_count = 0
+        
+        for i, (question, mode) in enumerate(zip(questions, question_modes)):
+            user_answer = user_answers[i] if i < len(user_answers) else {}
+            
+            if mode == 'A':
+                user_pos_list = user_answer.get('pos', [])
+                user_meaning_list = user_answer.get('meaning', [])
+                is_correct = question.check_answer_mode_a(user_pos_list, user_meaning_list)
+                results.append({
+                    'mode': 'A',
+                    'question': question.to_dict(),
+                    'user_pos_list': user_pos_list,
+                    'user_meaning_list': user_meaning_list,
+                    'correct': is_correct
+                })
+            else:  # mode == 'B'
+                user_word = user_answer.get('word', '')
+                is_correct = question.check_answer_mode_b(user_word)
+                results.append({
+                    'mode': 'B',
+                    'question': question.to_dict(),
+                    'user_word': user_word,
+                    'correct': is_correct
+                })
+            
+            if is_correct:
+                correct_count += 1
+        
+        end_time = time.time()
+        total_time = int(end_time - start_time)
+        
+        # 儲存結果到 session
+        session['results'] = results
+        session['correct_count'] = correct_count
+        session['total_time'] = total_time
+        session.modified = True  # 確保 session 被標記為已修改
+        
+        print(f"Results saved to session: {len(results)} questions, {correct_count} correct")  # Debug log
+        
+        return jsonify({'success': True, 'redirect': url_for('result')})
+        
+    except Exception as e:
+        print(f"Error in submit_answers: {e}")  # Debug log
+        return jsonify({'success': False, 'message': f'提交失敗: {str(e)}'})
 
 @app.route('/result')
 def result():

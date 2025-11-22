@@ -388,22 +388,31 @@
                 }
             });
             
+            console.log('Submitting answers:', answers);  // Debug log
+            
             try {
                 const response = await fetch('/submit_answers', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ answers })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('Server response:', data);  // Debug log
                 
                 if (data.success) {
+                    console.log('Redirecting to:', data.redirect);  // Debug log
                     window.location.href = data.redirect;
                 } else {
                     alert(data.message || '提交失敗,請稍後再試');
                 }
             } catch (error) {
-                alert('提交失敗,請稍後再試');
-                console.error('Error:', error);
+                console.error('Submit error:', error);
+                alert('提交失敗,請稍後再試: ' + error.message);
             }
         }
     </script>
